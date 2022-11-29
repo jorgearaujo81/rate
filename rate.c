@@ -92,15 +92,23 @@ void main (int argc, char *argv[])
     
     quicksort(task, 0, number_tasks-1);
 
+    file_write = fopen("rate_jaa.out", "w");
+
+    if(file_write == NULL)
+    {
+        fprintf(stderr, "file cannot be opened\n");
+        exit(EXIT_FAILURE);
+    }
+
     int task_queue = 0;
     int time_idle = 0;
     int current = number_tasks - 1;
     int next = 0;
     int time_hold = 0;
 
-    printf("EXECUTION BY RATE\n");
+    fprintf(file_write,"EXECUTION BY RATE\n");
     for (int time = 0; time <= TOTAL_TIME; time++)
-    {
+    {        
         for (int i = number_tasks-1; i >=0 ; i--)
         {
             if (time == 0)
@@ -148,18 +156,18 @@ void main (int argc, char *argv[])
             }
         }
         
-        //printf("%s %d %d %d\n", task[current].name, task[current].miss, task_queue ,time);
+        printf("%s %d %d %d\n", task[current].name, task[current].miss, task_queue ,time);
 
         if ((time % task[next].period == 0 || time == TOTAL_TIME) && task_queue == 0)
-            printf("idle for %d units\n", time_idle);
+            fprintf(file_write,"idle for %d units\n", time_idle);
         else if (task[current].miss == 0 && task_queue != 0 && time <= TOTAL_TIME)
-            printf("[%s] for %d units - %c\n", task[current].name, task[current].hold - task[current].miss, FULL);
-        else if (time % task[next].period == 0 && task[next].period < task[current].period && time < TOTAL_TIME)
-            printf("[%s] for %d units - %c\n", task[current].name, task[current].time, HOLD);
+            fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].hold - task[current].miss, FULL);
+        else if (file_write,time % task[next].period == 0 && task[next].period < task[current].period && time < TOTAL_TIME)
+           fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].time, HOLD);
         else if (time % task[current].period == 0 && task[current].miss < task[current].cpu_burst && time < TOTAL_TIME)
-            printf("[%s] for %d units - %c\n", task[current].name, task[current].miss, LOST);
+            fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].miss, LOST);
         else if(task[current].cpu_burst - task[current].miss > 0 && time == TOTAL_TIME && task_queue != 0)
-            printf("[%s] for %d units - %c\n", task[current].name, task[current].hold - task[current].miss, KILLED);
+            fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].hold - task[current].miss, KILLED);
 
         if(task[current].miss == 0 && task_queue != 0)
         {
