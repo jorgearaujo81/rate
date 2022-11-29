@@ -87,7 +87,6 @@ void main (int argc, char *argv[])
         index++;
     }
     fclose(file_read);
-
     
     quicksort(task, 0, number_tasks-1);
 
@@ -100,15 +99,13 @@ void main (int argc, char *argv[])
     }
 
     int task_queue = 0;
-    int task_idle = 0;
     int time_idle = 0;
     int current = 0;
     int next = 0;
 
     fprintf(file_write,"EXECUTION BY RATE\n");
     for (int time = 0; time <= TOTAL_TIME; time++)
-    {
-        
+    {        
         if(time == 0)
         {
             for (int i = number_tasks-1; i >=0 ; i--)
@@ -119,60 +116,66 @@ void main (int argc, char *argv[])
                     current = i;
             }
 
-        }else if (time < TOTAL_TIME)
+        }else if (time <= TOTAL_TIME)
         {
             for(int i = number_tasks - 1; i >= 0; i--)
             {
-                if(time % task[i].period == 0 && task_queue != 0){
+                if ((time % task[current].period == 0 || time == TOTAL_TIME) && task_queue == 0)
+                {
+                    fprintf(file_write, "idle for %d units\n", time_idle);
+                    time_idle = 0;
+                }               
+
+                if(time % task[i].period == 0)
+                {
                     if(task[i].miss == 0)
-                    {
-                        next = i;
+                    { 
                         task[i].miss = task[i].cpu_burst;
-                        task_queue++;
+                        next = i;
+
                     }else if (task[current].miss < task[current].cpu_burst)
                     {
                         task[current].lost_deadline++;
                         fprintf(file_write, "[%s] for %d units - %c\n", task[current].name, task[current].miss, LOST);
+                        task_queue--;
                         task[i].miss = task[i].cpu_burst;
                         current = i;
                     }
-                }
+
+                    task_queue++;
+                    
+                }else
+                    if (task[current].miss == 0 && task[i].miss != 0 && i != current)
+                        next = i;
             }
+        }        
+        printf("[%s] for %d %d na fila %d units\n", task[current].name, task[current].miss, task_queue, time);
 
-        }
-
-        if(task[current].miss == 0 && time <= TOTAL_TIME)
+        if(task[current].miss == 0 && task_queue != 0 && time <= TOTAL_TIME)
         {
             task[current].complete_execution++;
             task_queue--;
             fprintf(file_write, "[%s] for %d units - %c\n", task[current].name, task[current].cpu_burst - task[current].hold, FULL);
-            
-            if(current == number_tasks-1)
-                current = 0;
-            else
-                current++;
+            current = next;
+
         }else if (time % task[next].period == 0 && task[next].period < task[current].period && time < TOTAL_TIME)
         {
             task[current].hold = task[current].cpu_burst - task[current].miss;
             fprintf(file_write, "[%s] for %d units - %c\n", task[current].name, task[current].hold, HOLD);
             current = next;
-
+           
         }else if(task[current].cpu_burst - task[current].miss > 0 && time == TOTAL_TIME && task_queue != 0)
             fprintf(file_write, "[%s] for %d units - %c\n", task[current].name, task[current].cpu_burst - task[current].hold - task[current].miss, KILLED);
         
-        else if ((time % task[current].period == 0 || time == TOTAL_TIME) && task_queue == 0)
+
+        if(time < TOTAL_TIME)
         {
-            fprintf(file_write, "idle for %d units\n", time_idle);
-            task[current].miss = task[current].cpu_burst;
-            time_idle = 0;
-            task_queue++;
+
+            if(!task_queue)
+                time_idle++;
+            else
+                task[current].miss--;
         }
-
-        if(!task_queue)
-            time_idle++;
-
-        task[current].miss--;
-        
     }
 
     fprintf(file_write,"\nLOST DEADLINES\n");
