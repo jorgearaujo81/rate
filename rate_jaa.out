@@ -3,7 +3,7 @@ EXECUTION BY RATE
 [T3] for 15 units - F
 [T2] for 15 units - H
 [T1] for 20 units - F
-[T2] for 0 units - H
+[T2] for 10 units - H
 [T3] for 15 units - F
 [T2] for 5 units - H
 [T1] for 20 units - F
@@ -14,7 +14,7 @@ EXECUTION BY RATE
 idle for 10 units
 [T1] for 20 units - F
 idle for 20 units
-[T3] for 0 units - K
+[T3] for 10 units - K
 
 LOST DEADLINES
 [T1] 0

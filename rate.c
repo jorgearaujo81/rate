@@ -108,7 +108,7 @@ void main (int argc, char *argv[])
 
     fprintf(file_write,"EXECUTION BY RATE\n");
     for (int time = 0; time <= TOTAL_TIME; time++)
-    {        
+    {
         for (int i = number_tasks-1; i >=0 ; i--)
         {
             if (time == 0)
@@ -126,11 +126,13 @@ void main (int argc, char *argv[])
             }
             else
             {
+                
                 if (time % task[i].period == 0)
                 {
 
                     if (task[current].miss > 0 && task[i].period < task[current].period)
                     {
+                        //task[current].time = task[current].hold - task[current].miss;
                         task[current].hold = task[current].miss;
                         next = i;
                     }
@@ -138,34 +140,38 @@ void main (int argc, char *argv[])
                     {
                         task_queue--;
                         next = i;
-                    }
-                    else if (task_queue == 0)
+                    }else if (task_queue == 0)
                         next = i;
                 }
                 else 
+                {
                     if(task[current].miss == 0)
+                    {
+                        //task[current].time = task[current].hold - task[current].miss;
                         if(task_queue != 0 && task[i].miss != 0)
                             next = i;
+                    }
+                    
+                }
             }
         }
-
+        
         if ((time % task[next].period == 0 || time == TOTAL_TIME) && task_queue == 0)
             fprintf(file_write,"idle for %d units\n", time_idle);
         else if (task[current].miss == 0 && task_queue != 0 && time <= TOTAL_TIME)
-            fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].hold - task[current].miss, FULL);
+            fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].time, FULL);
         else if (file_write,time % task[next].period == 0 && task[next].period < task[current].period && time < TOTAL_TIME)
            fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].time, HOLD);
         else if (time % task[current].period == 0 && task[current].miss < task[current].cpu_burst && time < TOTAL_TIME)
             fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].miss, LOST);
         else if(task[current].cpu_burst - task[current].miss > 0 && time == TOTAL_TIME && task_queue != 0)
-            fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].hold - task[current].miss, KILLED);
-
+            fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].time, KILLED);
+        
         if(task[current].miss == 0 && task_queue != 0)
         {
             task[current].complete_execution++;
             task_queue--;
         }
-
         for (int i = number_tasks - 1; i >= 0 ; i--)
         {
             if (time % task[i].period == 0 && time != 0)
@@ -173,7 +179,9 @@ void main (int argc, char *argv[])
                 task_queue++;
 
                 if(task[i].period < task[current].period && task[i].miss != 0)
+                {
                     next = i;
+                }
                 else if (task[i].miss < task[current].cpu_burst && task[current].miss != 0 && i == current)
                 {
                     task[current].lost_deadline++;
@@ -181,12 +189,15 @@ void main (int argc, char *argv[])
                     next = i;
                 }
                 else if (task[i].miss < task[i].cpu_burst && task[i].miss != 0)
+                {
                     task[i].lost_deadline++;
+                }
                 
                 task[i].miss = task[i].cpu_burst;
                 task[i].hold = task[i].cpu_burst;
             }
         }
+
 
         current = next;
 
@@ -197,7 +208,6 @@ void main (int argc, char *argv[])
             time_idle = 0;
             task[current].miss--;
         }
-        
         task[current].time = task[current].hold - task[current].miss;
     }
 
