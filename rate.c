@@ -128,35 +128,26 @@ void main (int argc, char *argv[])
             {
                 if (time % task[i].period == 0)
                 {
+
                     if (task[current].miss > 0 && task[i].period < task[current].period)
                     {
-                        task[current].time = task[current].hold - task[current].miss;
                         task[current].hold = task[current].miss;
-
                         next = i;
                     }
                     else if (task[current].miss == 0 && task[i].miss != 0)
                     {
                         task_queue--;
                         next = i;
-                    }else if (task_queue == 0)
-                    {
-                        next = i;
-
                     }
+                    else if (task_queue == 0)
+                        next = i;
                 }
-                else
-                {
-                    if(task[current].miss == 0 && task_queue != 0)
-                    {
-                        if (task[i].miss != 0)
+                else 
+                    if(task[current].miss == 0)
+                        if(task_queue != 0 && task[i].miss != 0)
                             next = i;
-                    }   
-                }           
             }
         }
-        
-        printf("%s %d %d %d\n", task[current].name, task[current].miss, task_queue ,time);
 
         if ((time % task[next].period == 0 || time == TOTAL_TIME) && task_queue == 0)
             fprintf(file_write,"idle for %d units\n", time_idle);
@@ -189,6 +180,9 @@ void main (int argc, char *argv[])
                     task_queue--;
                     next = i;
                 }
+                else if (task[i].miss < task[i].cpu_burst && task[i].miss != 0)
+                    task[i].lost_deadline++;
+                
                 task[i].miss = task[i].cpu_burst;
                 task[i].hold = task[i].cpu_burst;
             }
@@ -203,8 +197,8 @@ void main (int argc, char *argv[])
             time_idle = 0;
             task[current].miss--;
         }
-
-       
+        
+        task[current].time = task[current].hold - task[current].miss;
     }
 
     fprintf(file_write,"\nLOST DEADLINES\n");
