@@ -36,7 +36,7 @@ void main(int argc, char *argv[])
 
     if (argc < 2)
     {
-        fprintf(stderr, "required to enter the file name\n");
+        fprintf(stderr, "too few arguments: required to enter file\n");
         exit(EXIT_FAILURE);
 
     }
@@ -62,7 +62,7 @@ void main(int argc, char *argv[])
         {
             if (line == NULL)
             {
-                fprintf(stderr, "empty file\n");
+                fprintf(stderr, "error file: empty file\n");
                 exit(EXIT_FAILURE);
             }
             else
@@ -70,7 +70,7 @@ void main(int argc, char *argv[])
                 TOTAL_TIME = atoi(line);
                 if (!TOTAL_TIME)
                 {
-                    fprintf(stderr, "input not a number check file line %d\n", number_tasks+1);
+                    fprintf(stderr, "error input: not a number check file line %d\n", number_tasks+1);
                     exit(EXIT_FAILURE);
                 }
             }
@@ -79,7 +79,7 @@ void main(int argc, char *argv[])
         {
             if (line == NULL)
             {
-                fprintf(stderr, "input no task to run check file line %d\n", number_tasks+1);
+                fprintf(stderr, "error input: no task to run check file line %d\n", number_tasks+1);
                 exit(EXIT_FAILURE);
             }
         }
@@ -89,7 +89,7 @@ void main(int argc, char *argv[])
 
     if (number_tasks < 2)
     {
-        fprintf(stderr, "input no task to run check file\n");
+        fprintf(stderr, "error input: no task to run check file\n");
         exit(EXIT_FAILURE);
     }
 
@@ -115,14 +115,14 @@ void main(int argc, char *argv[])
 
             if (!temp)
             {
-                fprintf(stderr, "error input check file line %d\n", index+1);
+                fprintf(stderr, "error input: check file line %d\n", index+1);
                 exit (EXIT_FAILURE);
             }
 
             task[index-1].period = atoi(temp);
             if (!task[index-1].period)
             {
-                fprintf(stderr, "input is not a number, check file line %d\n", index+1);
+                fprintf(stderr, "error input: not a number, check file line %d\n", index+1);
                 exit(EXIT_FAILURE);
             }
 
@@ -130,7 +130,7 @@ void main(int argc, char *argv[])
 
             if (!temp)
             {
-                fprintf(stderr, "error input check file line %d\n", index+1);
+                fprintf(stderr, "error input: check file line %d\n", index+1);
                 exit(EXIT_FAILURE);
             }
 
@@ -138,7 +138,7 @@ void main(int argc, char *argv[])
            
             if (!task[index-1].cpu_burst)
             {
-                fprintf(stderr, "input is not a number, check file line %d\n", index+1);
+                fprintf(stderr, "error input: not a number, check file line %d\n", index+1);
                 exit(EXIT_FAILURE);
             }
 
