@@ -70,17 +70,26 @@ void main (int argc, char *argv[])
                 TOTAL_TIME = atoi (line);
                 if (!TOTAL_TIME)
                 {
-                    fprintf (stderr, "input error: not a number\n");
+                    fprintf (stderr, "input not a number check file line %d\n", number_tasks+1);
                     exit (EXIT_FAILURE);
                 }
             }
         }
+        else
+        {
+            if (line == NULL)
+            {
+                fprintf (stderr, "input no task to run check file line %d\n", number_tasks+1);
+                exit (EXIT_FAILURE);
+            }
+        }
+        
         number_tasks++;
     }
 
     if (number_tasks < 2)
     {
-        fprintf (stderr, "input error: no task to run\n");
+        fprintf (stderr, "input no task to run check file\n");
         exit (EXIT_FAILURE);
     }
     
@@ -91,15 +100,48 @@ void main (int argc, char *argv[])
     fseek(file_read,0,SEEK_SET);
 
     int index = 0;
+    char *temp;
 
     while (!feof(file_read))
     {
         line = fgets(character, MAX, file_read);
+            
         if(index)
         {
+
             strcpy(task[index-1].name, strtok(line, " "));
-            task[index-1].period = atoi(strtok(NULL, " "));
-            task[index-1].cpu_burst = atoi(strtok(NULL, " "));
+            
+            temp = strtok(NULL, " ");
+
+            if (!temp)
+            {
+                fprintf (stderr, "error input check file line %d\n", index+1);
+                exit (EXIT_FAILURE);
+            }
+
+            task[index-1].period = atoi(temp);
+            if (task[index-1].period == 0)
+            {
+                fprintf (stderr, "input is not a number, check file line %d\n", index+1);
+                exit (EXIT_FAILURE);
+            }
+            
+            temp = strtok(NULL, " ");
+
+            if (!temp)
+            {
+                fprintf (stderr, "error input check file line %d\n", index+1);
+                exit (EXIT_FAILURE);
+            }
+
+            task[index-1].cpu_burst = atoi(temp);
+           
+            if (task[index-1].cpu_burst == 0)
+            {
+                fprintf (stderr, "input is not a number, check file line %d\n", index+1);
+                exit (EXIT_FAILURE);
+            }
+            
             task[index-1].lost_deadline = 0;
             task[index-1].complete_execution = 0;
             task[index-1].miss = 0;
