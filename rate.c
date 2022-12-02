@@ -25,53 +25,53 @@ struct stTask
 
 FILE *file_read, *file_write;
 
-void quicksort (struct stTask *task, int , int);
+void quicksort(struct stTask *task, int , int);
 
-void main (int argc, char *argv[])
+void main(int argc, char *argv[])
 {
     char character[MAX];
     char *line;
     int number_tasks = 0;
     int TOTAL_TIME;
-    
+
     if (argc < 2)
     {
-        fprintf (stderr, "required to enter the file name\n");
-        exit (EXIT_FAILURE);
+        fprintf(stderr, "required to enter the file name\n");
+        exit(EXIT_FAILURE);
 
     }
     else if (argc > 2)
     {
-        fprintf (stderr, "too many arguments\n");
-        exit (EXIT_FAILURE);
+        fprintf(stderr, "too many arguments\n");
+        exit(EXIT_FAILURE);
     }
-    
-    file_read = fopen (argv[1], "r+b");
+
+    file_read = fopen(argv[1], "r+b");
 
     if (file_read == NULL)
     {
-        fprintf (stderr, "file cannot be opened\n");
-        exit (EXIT_FAILURE);
+        fprintf(stderr, "file cannot be opened\n");
+        exit(EXIT_FAILURE);
     }
-    
-    while (!feof (file_read))
+
+    while (!feof(file_read))
     {
-        line = fgets (character, MAX, file_read);
+        line = fgets(character, MAX, file_read);
 
         if (!number_tasks)
         {
             if (line == NULL)
             {
-                fprintf (stderr, "empty file\n");
-                exit (EXIT_FAILURE);
+                fprintf(stderr, "empty file\n");
+                exit(EXIT_FAILURE);
             }
             else
             {
-                TOTAL_TIME = atoi (line);
+                TOTAL_TIME = atoi(line);
                 if (!TOTAL_TIME)
                 {
-                    fprintf (stderr, "input not a number check file line %d\n", number_tasks+1);
-                    exit (EXIT_FAILURE);
+                    fprintf(stderr, "input not a number check file line %d\n", number_tasks+1);
+                    exit(EXIT_FAILURE);
                 }
             }
         }
@@ -79,8 +79,8 @@ void main (int argc, char *argv[])
         {
             if (line == NULL)
             {
-                fprintf (stderr, "input no task to run check file line %d\n", number_tasks+1);
-                exit (EXIT_FAILURE);
+                fprintf(stderr, "input no task to run check file line %d\n", number_tasks+1);
+                exit(EXIT_FAILURE);
             }
         }
         
@@ -89,15 +89,15 @@ void main (int argc, char *argv[])
 
     if (number_tasks < 2)
     {
-        fprintf (stderr, "input no task to run check file\n");
-        exit (EXIT_FAILURE);
+        fprintf(stderr, "input no task to run check file\n");
+        exit(EXIT_FAILURE);
     }
-    
+
     number_tasks--;
-    
+
     struct stTask task[number_tasks];
 
-    fseek(file_read,0,SEEK_SET);
+    fseek(file_read, 0, SEEK_SET);
 
     int index = 0;
     char *temp;
@@ -110,54 +110,55 @@ void main (int argc, char *argv[])
         {
 
             strcpy(task[index-1].name, strtok(line, " "));
-            
+
             temp = strtok(NULL, " ");
 
             if (!temp)
             {
-                fprintf (stderr, "error input check file line %d\n", index+1);
+                fprintf(stderr, "error input check file line %d\n", index+1);
                 exit (EXIT_FAILURE);
             }
 
             task[index-1].period = atoi(temp);
-            if (task[index-1].period == 0)
+            if (!task[index-1].period)
             {
-                fprintf (stderr, "input is not a number, check file line %d\n", index+1);
-                exit (EXIT_FAILURE);
+                fprintf(stderr, "input is not a number, check file line %d\n", index+1);
+                exit(EXIT_FAILURE);
             }
-            
+
             temp = strtok(NULL, " ");
 
             if (!temp)
             {
-                fprintf (stderr, "error input check file line %d\n", index+1);
-                exit (EXIT_FAILURE);
+                fprintf(stderr, "error input check file line %d\n", index+1);
+                exit(EXIT_FAILURE);
             }
 
             task[index-1].cpu_burst = atoi(temp);
            
-            if (task[index-1].cpu_burst == 0)
+            if (!task[index-1].cpu_burst)
             {
-                fprintf (stderr, "input is not a number, check file line %d\n", index+1);
-                exit (EXIT_FAILURE);
+                fprintf(stderr, "input is not a number, check file line %d\n", index+1);
+                exit(EXIT_FAILURE);
             }
-            
+
             task[index-1].lost_deadline = 0;
             task[index-1].complete_execution = 0;
             task[index-1].miss = 0;
             task[index-1].hold = 0;
             task[index-1].time = 0;
         }
-        
+
         index++;
     }
+
     fclose(file_read);
     
     quicksort(task, 0, number_tasks-1);
 
     file_write = fopen("rate_jaa.out", "w");
 
-    if(file_write == NULL)
+    if (file_write == NULL)
     {
         fprintf(stderr, "file cannot be opened\n");
         exit(EXIT_FAILURE);
@@ -169,98 +170,91 @@ void main (int argc, char *argv[])
     int next = 0;
     int time_hold = 0;
 
-    fprintf(file_write,"EXECUTION BY RATE\n");
+    fprintf(file_write, "EXECUTION BY RATE\n");
     for (int time = 0; time <= TOTAL_TIME; time++)
     {
-        for (int i = number_tasks-1; i >=0 ; i--)
+        for (int i = number_tasks - 1; i >=0 ; i--)
         {
-            if (time == 0)
+            if (!time)
             {
                 task[i].miss = task[i].cpu_burst;
                 task[i].hold = task[i].cpu_burst;
 
                 task_queue++;
 
-                if (task[i].period != 0)
+                if (task[i].period)
                 {
                     current = i;
-                    next = current;
+                    next = i;
                 }
             }
             else
             {
-                
-                if (time % task[i].period == 0)
+                if (!(time % task[i].period))
                 {
 
                     if (task[current].miss > 0 && task[i].period < task[current].period)
                     {
-                        //task[current].time = task[current].hold - task[current].miss;
                         task[current].hold = task[current].miss;
                         next = i;
                     }
-                    else if (task[current].miss == 0 && task[i].miss != 0)
+                    else if (!task[current].miss && task[i].miss)
                     {
                         task_queue--;
                         next = i;
-                    }else if (task_queue == 0)
+                    }
+                    else if (!task_queue)
                         next = i;
                 }
-                else 
+                else
                 {
-                    if(task[current].miss == 0)
+                    if (!task[current].miss)
                     {
-                        //task[current].time = task[current].hold - task[current].miss;
-                        if(task_queue != 0 && task[i].miss != 0)
+                        if (task_queue && task[i].miss)
                             next = i;
                     }
-                    
                 }
             }
         }
-        
-        if ((time % task[next].period == 0 || time == TOTAL_TIME) && task_queue == 0)
+
+        if ((!(time % task[next].period) || time == TOTAL_TIME) && !task_queue)
             fprintf(file_write,"idle for %d units\n", time_idle);
-        else if (task[current].miss == 0 && task_queue != 0 && time <= TOTAL_TIME)
+        else if (!task[current].miss && task_queue && time <= TOTAL_TIME)
             fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].time, FULL);
-        else if (file_write,time % task[next].period == 0 && task[next].period < task[current].period && time < TOTAL_TIME)
+        else if (file_write, !(time % task[next].period) && task[next].period < task[current].period && time < TOTAL_TIME)
            fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].time, HOLD);
-        else if (time % task[current].period == 0 && task[current].miss < task[current].cpu_burst && time < TOTAL_TIME)
+        else if (!(time % task[current].period) && task[current].miss < task[current].cpu_burst && time < TOTAL_TIME)
             fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].miss, LOST);
-        else if(task[current].cpu_burst - task[current].miss > 0 && time == TOTAL_TIME && task_queue != 0)
+        else if(task[current].cpu_burst - task[current].miss > 0 && time == TOTAL_TIME && task_queue)
             fprintf(file_write,"[%s] for %d units - %c\n", task[current].name, task[current].time, KILLED);
-        
-        if(task[current].miss == 0 && task_queue != 0)
+
+        if (!task[current].miss && task_queue)
         {
             task[current].complete_execution++;
             task_queue--;
         }
         for (int i = number_tasks - 1; i >= 0 ; i--)
         {
-            if (time % task[i].period == 0 && time != 0)
+            if (!(time % task[i].period)&& time)
             {
                 task_queue++;
 
-                if(task[i].period < task[current].period && task[i].miss != 0)
-                {
+                if (task[i].period < task[current].period && task[i].miss)
                     next = i;
-                }
-                else if (task[i].miss < task[current].cpu_burst && task[current].miss != 0 && i == current)
+
+                else if (task[i].miss < task[current].cpu_burst && task[current].miss && i == current)
                 {
                     task[current].lost_deadline++;
                     task_queue--;
                     next = i;
                 }
-                else if (task[i].miss < task[i].cpu_burst && task[i].miss != 0)
-                {
+                else if (task[i].miss < task[i].cpu_burst && task[i].miss)
                     task[i].lost_deadline++;
-                }
                 
                 task[i].miss = task[i].cpu_burst;
                 task[i].hold = task[i].cpu_burst;
             }
         }
-
 
         current = next;
 
@@ -271,29 +265,31 @@ void main (int argc, char *argv[])
             time_idle = 0;
             task[current].miss--;
         }
+
         task[current].time = task[current].hold - task[current].miss;
     }
 
-    fprintf(file_write,"\nLOST DEADLINES\n");
-    for(int i = 0; i < number_tasks; i++)
+    fprintf(file_write, "\nLOST DEADLINES\n");
+    for (int i = 0; i < number_tasks; i++)
         fprintf(file_write,"[%s] %d\n", task[i].name, task[i].lost_deadline);
 
-    fprintf(file_write,"\nCOMPLETE EXECUTION\n");
-    for(int i = 0; i < number_tasks; i++)
+    fprintf(file_write, "\nCOMPLETE EXECUTION\n");
+    for (int i = 0; i < number_tasks; i++)
         fprintf(file_write, "[%s] %d\n", task[i].name, task[i].complete_execution);
 
     fprintf(file_write,"\nKILLED\n");
-    for(int i = 0; i < number_tasks; i++){
-        if(i != number_tasks - 1)
+    for (int i = 0; i < number_tasks; i++)
+    {
+        if (i != number_tasks - 1)
         {
-            if(task[i].miss > 0)
+            if (task[i].miss > 0)
                 fprintf(file_write,"[%s] %d\n", task[i].name, 1);
             else
                 fprintf(file_write,"[%s] %d\n", task[i].name, 0);
         }
         else
         {
-            if(task[i].miss > 0)
+            if (task[i].miss > 0)
                 fprintf(file_write,"[%s] %d", task[i].name, 1);
             else
                 fprintf(file_write,"[%s] %d", task[i].name, 0);
@@ -313,12 +309,15 @@ void quicksort(struct stTask *task, int first, int last)
     indexLast = last;
     tempFirst = task[(first+last)/2].period;
 
-    do{
-        while(task[indexFirst].period < tempFirst && indexFirst < last) indexFirst++;
+    do
+    {
+        while (task[indexFirst].period < tempFirst && indexFirst < last)
+            indexFirst++; 
 
-        while(tempFirst < task[indexLast].period && indexLast > first) indexLast--;
+        while (tempFirst < task[indexLast].period && indexLast > first)
+            indexLast--;
 
-        if(indexFirst <= indexLast)
+        if (indexFirst <= indexLast)
         {
 
             tempLast = task[indexFirst].period;
@@ -336,9 +335,11 @@ void quicksort(struct stTask *task, int first, int last)
             indexFirst++;
             indexLast--;
         }
-    }while(indexFirst <= indexLast);
+    }while (indexFirst <= indexLast);
 
-    if(first < indexLast) quicksort(task, first, indexLast);
+    if (first < indexLast)
+        quicksort(task, first, indexLast);
 
-    if(indexFirst < last) quicksort(task, indexFirst, last);
+    if (indexFirst < last)
+        quicksort(task, indexFirst, last);
 }
