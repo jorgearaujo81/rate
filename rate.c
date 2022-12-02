@@ -25,7 +25,7 @@ struct stTask
 
 FILE *file_read, *file_write;
 
-void quicksort(struct stTask *task, int , int);
+void quicksort (struct stTask *task, int , int);
 
 void main (int argc, char *argv[])
 {
@@ -34,35 +34,56 @@ void main (int argc, char *argv[])
     int number_tasks = 0;
     int TOTAL_TIME;
     
-    if(argc < 2){
-        fprintf(stderr, "required to enter the file name\n");
-        exit(EXIT_FAILURE);
-
-    }else if (argc > 2)
+    if (argc < 2)
     {
-        fprintf(stderr, "too many arguments\n");
-        exit(EXIT_FAILURE);
+        fprintf (stderr, "required to enter the file name\n");
+        exit (EXIT_FAILURE);
+
+    }
+    else if (argc > 2)
+    {
+        fprintf (stderr, "too many arguments\n");
+        exit (EXIT_FAILURE);
     }
     
-    file_read = fopen(argv[1], "r+b");
+    file_read = fopen (argv[1], "r+b");
 
-    if(file_read == NULL)
+    if (file_read == NULL)
     {
-        fprintf(stderr, "file cannot be opened\n");
-        exit(EXIT_FAILURE);
+        fprintf (stderr, "file cannot be opened\n");
+        exit (EXIT_FAILURE);
     }
     
-    while (!feof(file_read))
+    while (!feof (file_read))
     {
-        line = fgets(character, MAX, file_read);
+        line = fgets (character, MAX, file_read);
 
-        if(!number_tasks)
+        if (!number_tasks)
         {
-            TOTAL_TIME = atoi(line);
+            if (line == NULL)
+            {
+                fprintf (stderr, "empty file\n");
+                exit (EXIT_FAILURE);
+            }
+            else
+            {
+                TOTAL_TIME = atoi (line);
+                if (!TOTAL_TIME)
+                {
+                    fprintf (stderr, "input error: not a number\n");
+                    exit (EXIT_FAILURE);
+                }
+            }
         }
         number_tasks++;
     }
 
+    if (number_tasks < 2)
+    {
+        fprintf (stderr, "input error: no task to run\n");
+        exit (EXIT_FAILURE);
+    }
+    
     number_tasks--;
     
     struct stTask task[number_tasks];
