@@ -96,6 +96,7 @@ void main(int argc, char *argv[])
     number_tasks--;
 
     struct stTask task[number_tasks];
+    char task_list[number_tasks][MAX];
 
     fseek(file_read, 0, SEEK_SET);
 
@@ -110,6 +111,7 @@ void main(int argc, char *argv[])
         {
 
             strcpy(task[index-1].name, strtok(line, " "));
+            strcpy(task_list[index-1], task[index-1].name);
 
             temp = strtok(NULL, " ");
 
@@ -270,31 +272,28 @@ void main(int argc, char *argv[])
     }
 
     fprintf(file_write, "\nLOST DEADLINES\n");
-    for (int i = 0; i < number_tasks; i++)
-        fprintf(file_write,"[%s] %d\n", task[i].name, task[i].lost_deadline);
+    for (int index = 0; index < number_tasks; index++)
+        for (int i = 0; i < number_tasks; i++)
+            if (!strcmp(task_list[index], task[i].name))
+                fprintf(file_write,"[%s] %d\n", task[i].name, task[i].lost_deadline);
 
     fprintf(file_write, "\nCOMPLETE EXECUTION\n");
-    for (int i = 0; i < number_tasks; i++)
-        fprintf(file_write, "[%s] %d\n", task[i].name, task[i].complete_execution);
+    for (int index = 0; index < number_tasks; index++)
+        for (int i = 0; i < number_tasks; i++)
+           if (!strcmp(task_list[index], task[i].name))
+                fprintf(file_write, "[%s] %d\n", task[index].name, task[index].complete_execution);
 
     fprintf(file_write,"\nKILLED\n");
-    for (int i = 0; i < number_tasks; i++)
-    {
-        if (i != number_tasks - 1)
-        {
-            if (task[i].miss > 0)
-                fprintf(file_write,"[%s] %d\n", task[i].name, 1);
-            else
-                fprintf(file_write,"[%s] %d\n", task[i].name, 0);
-        }
-        else
-        {
-            if (task[i].miss > 0)
+    for (int index = 0; index < number_tasks; index++)
+        for (int i = 0; i < number_tasks; i++)
+            if (!strcmp(task_list[index], task[i].name) && task[i].miss && index != (number_tasks - 1))
+                fprintf(file_write, "[%s] %d\n", task[i].name, 1);
+            else if (!strcmp(task_list[index], task[i].name) && task[i].miss && index == (number_tasks - 1))
                 fprintf(file_write,"[%s] %d", task[i].name, 1);
-            else
+            else if (!strcmp(task_list[index], task[i].name) && !task[i].miss && index != (number_tasks - 1))
+                fprintf(file_write,"[%s] %d\n", task[i].name, 0);
+             else if (!strcmp(task_list[index], task[i].name) && !task[i].miss && index == (number_tasks - 1))
                 fprintf(file_write,"[%s] %d", task[i].name, 0);
-        }
-    }
 
     fclose(file_write);
 }

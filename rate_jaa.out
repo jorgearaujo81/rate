@@ -1,32 +1,16 @@
 EXECUTION BY RATE
-[T1] for 20 units - F
-[T3] for 15 units - F
-[T2] for 15 units - H
-[T1] for 20 units - F
-[T2] for 10 units - H
-[T3] for 15 units - F
-[T2] for 5 units - H
-[T1] for 20 units - F
-[T2] for 30 units - H
-[T1] for 20 units - F
-[T3] for 15 units - F
-[T2] for 5 units - F
-idle for 10 units
-[T1] for 20 units - F
-idle for 20 units
-[T3] for 10 units - K
+[T1] for 25 units - F
+[T2] for 25 units - H
+[T1] for 25 units - F
 
 LOST DEADLINES
 [T1] 0
-[T3] 0
-[T2] 1
+[T2] 0
 
 COMPLETE EXECUTION
-[T1] 5
-[T3] 3
-[T2] 1
+[T1] 2
+[T2] 0
 
 KILLED
-[T1] 1
-[T3] 1
+[T1] 0
 [T2] 1
